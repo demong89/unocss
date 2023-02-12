@@ -1,28 +1,31 @@
 {
-  "name": "unocss-sveltekit",
+  "name": "unocss-sveltekit-rc",
   "type": "module",
   "scripts": {
-    "dev": "vite dev --force",
+    "dev": "vite dev",
+    "stackblitz:dev": "node remove-links.js && npm install && vite dev",
     "build": "vite build",
-    "package": "svelte-kit package",
     "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.json",
-    "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
-    "lint": "eslint --ignore-path .gitignore ."
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
   },
   "devDependencies": {
-    "@iconify-json/logos": "^1.1.16",
-    "@iconify/utils": "^2.0.0",
-    "@sveltejs/adapter-static": "next",
+    "@iconify-json/logos": "^1.1.21",
+    "@iconify/utils": "^2.0.9",
+    "@sveltejs/adapter-auto": "next",
     "@sveltejs/kit": "next",
     "@unocss/core": "link:../../packages/core",
     "@unocss/preset-icons": "link:../../packages/preset-icons",
-    "svelte": "^3.50.1",
-    "svelte-check": "^2.9.0",
-    "svelte-preprocess": "^4.10.7",
-    "tslib": "^2.4.0",
-    "typescript": "^4.8.3",
+    "svelte": "^3.55.0",
+    "svelte-check": "^3.0.1",
+    "svelte-preprocess": "^5.0.0",
+    "tslib": "^2.4.1",
+    "typescript": "^4.9.4",
     "unocss": "link:../../packages/unocss",
-    "vite": "3.1.2"
+    "vite": "4.0.4"
+  },
+  "stackblitz": {
+    "installDependencies": false,
+    "startCommand": "npm run stackblitz:dev"
   }
 }

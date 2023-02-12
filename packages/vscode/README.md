@@ -17,7 +17,7 @@
 ## Features
 
 - Decoration and tooltip for matched utilities
-- Loading configs from `uno.config.js`, `vite.config.js`, `svelte.config.js`, `astro.config.js`, `iles.config.js` or `nuxt.config.js` (or `.ts`)
+- Loading configs from `uno.config.js`, `unocss.config.js`, `vite.config.js`, `svelte.config.js`, `astro.config.js`, `iles.config.js` or `nuxt.config.js` (or `.ts`)
 - Count of matched utilities
 
 ## Config
@@ -28,6 +28,12 @@ By default the extension will search for the config files under project root. Wh
 {
   "unocss.root": "packages/client"
 }
+```
+
+For now not working with auto-importing `defineNuxtConfig` in `nuxt.config.ts`, add manual import: 
+
+```ts
+import { defineNuxtConfig } from 'nuxt/config'
 ```
 
 ## License

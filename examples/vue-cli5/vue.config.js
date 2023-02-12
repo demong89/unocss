@@ -5,6 +5,9 @@ module.exports = {
     plugins: [
       UnoCSS(),
     ],
+    optimization: {
+      realContentHash: true,
+    },
   },
   chainWebpack(config) {
     config.module.rule('vue').uses.delete('cache-loader')
@@ -12,5 +15,8 @@ module.exports = {
     config.merge({
       cache: false,
     })
+  },
+  css: {
+    extract: true,
   },
 }

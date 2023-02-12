@@ -39,7 +39,7 @@ We use [Iconify](https://iconify.design) as our data source of icons. You need t
 ```ts
 import presetIcons from '@unocss/preset-icons'
 
-Unocss({
+UnoCSS({
   presets: [
     presetIcons({ /* options */ }),
     // ...other presets
@@ -57,7 +57,7 @@ npm i -D @iconify/json
 
 ## Configuration
 
-Refer to the [type definition](https://github.com/unocss/unocss/blob/main/packages/preset-icons/src/types.ts#L4) for all configurations avaliable.
+Refer to the [type definition](https://github.com/unocss/unocss/blob/main/packages/preset-icons/src/types.ts#L4) for all configurations available.
 
 ### Extra Properties
 
@@ -80,7 +80,7 @@ By default, this preset will choose the rendering modes automatically for each i
 - `?bg` for `background-img` - renders the icon as a background image
 - `?mask` for `mask` - renders the icon as a mask image
 
-For example, `vscode-icons:file-type-light-db`, an icon with colors that will be rendered as a background image. Use `vscode-icons:file-type-light-db?bg` to render it as a mask image and bypass it's colors.
+For example, `vscode-icons:file-type-light-pnpm`, an icon with colors (the `svg` doesn't contain `currentColor`) that will be rendered as a background image. Use `vscode-icons:file-type-light-pnpm?mask` to render it as a mask image and bypass it's colors.
 
 ## Configuring collections and icons resolvers
 

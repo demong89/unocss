@@ -51,9 +51,9 @@ exports[`shortcuts > merge transform-duplicated 1`] = `
 
 exports[`shortcuts > nesting static 1`] = `
 "/* layer: shortcuts */
-.btn2{margin:0.75rem;margin-left:2.5rem;margin-right:2.5rem;padding-left:0.5rem;padding-right:0.5rem;padding-top:0.75rem;padding-bottom:0.75rem;}
-.btn{margin-right:2.5rem;}
-.btn1{margin-left:2.5rem;margin-right:2.5rem;}
+.btn2{margin:0.75rem;margin-left:2.5rem;margin-right:2rem;padding-left:0.5rem;padding-right:0.5rem;padding-top:0.75rem;padding-bottom:0.75rem;}
+.btn{margin-right:2rem;}
+.btn1{margin-left:2.5rem;margin-right:2rem;}
 @media (min-width: 640px){
 .btn2{margin:0.5rem;}
 }"
@@ -71,7 +71,7 @@ exports[`shortcuts > shortcut of nested pseudo 1`] = `
 .btn3:focus,
 .focus\\\\:btn3:focus:focus,
 .focus\\\\:hover\\\\:btn3:focus:hover:focus,
-.hover\\\\:btn3:focus:hover{border-width:1px;border-style:solid;}
+.hover\\\\:btn3:focus:hover{border-width:1px;}
 .btn3,
 .focus\\\\:btn3:focus,
 .focus\\\\:hover\\\\:btn3:hover:focus,
@@ -107,7 +107,7 @@ exports[`shortcuts > static 1`] = `
 exports[`shortcuts > variant order 1`] = `
 "/* layer: shortcuts */
 .shortcut-hover-active-1:focus,
-.shortcut-hover-active-1:hover,
+.shortcut-hover-active-1:hover{--un-bg-opacity:1;background-color:rgba(134,239,172,var(--un-bg-opacity));}
 .shortcut-hover-active-1:active{--un-bg-opacity:1;background-color:rgba(134,239,172,var(--un-bg-opacity));}"
 `;
 
@@ -138,6 +138,6 @@ exports[`shortcuts > variant order 5`] = `
 "/* layer: shortcuts */
 .shortcut-hover-active-2:focus{--un-bg-opacity:1;background-color:rgba(252,165,165,var(--un-bg-opacity));}
 .shortcut-hover-active-2:hover{--un-bg-opacity:1;background-color:rgba(253,224,71,var(--un-bg-opacity));}
-.uno-layer-shortcuts\\\\:bg-blue-300,
+.uno-layer-shortcuts\\\\:bg-blue-300{--un-bg-opacity:1;background-color:rgba(147,197,253,var(--un-bg-opacity));}
 .shortcut-hover-active-2:active{--un-bg-opacity:1;background-color:rgba(147,197,253,var(--un-bg-opacity));}"
 `;

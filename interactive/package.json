@@ -3,29 +3,29 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "nuxi prepare && esno scripts/prepare.ts && nuxi generate .",
-    "dev": "nuxi prepare && esno scripts/prepare.ts && nuxi dev .",
-    "start": "node .output/server/index.mjs",
+    "build": "nuxi prepare && esno scripts/prepare.ts && nuxi generate",
+    "dev": "nuxi prepare && esno scripts/prepare.ts && nuxi dev",
+    "preview": "nuxi preview",
     "fetch": "esno scripts/fetch.ts"
   },
   "devDependencies": {
-    "@antfu/utils": "^0.5.2",
+    "@antfu/utils": "^0.7.2",
     "@unocss/autocomplete": "workspace:*",
     "@unocss/nuxt": "workspace:*",
     "@unocss/shared-docs": "workspace:*",
-    "@vueuse/nuxt": "^9.2.0",
+    "@vueuse/nuxt": "^9.10.0",
     "esno": "^0.16.3",
-    "fs-extra": "^10.1.0",
+    "fs-extra": "^11.1.0",
     "fuse.js": "^6.6.2",
     "js-yaml": "^4.1.0",
-    "knitwork": "^0.1.2",
+    "knitwork": "^1.0.0",
     "markdown-it-link-attributes": "^4.0.1",
-    "nuxt": "3.0.0-rc.9",
+    "nuxt": "^3.0.0",
     "p-limit": "^4.0.0",
-    "postcss-nested": "^5.0.6",
-    "prettier": "^2.7.1",
-    "shiki": "^0.11.1",
-    "theme-vitesse": "^0.5.2",
-    "vite-plugin-vue-markdown": "^0.22.1"
+    "postcss-nested": "^6.0.0",
+    "prettier": "^2.8.1",
+    "shiki": "^0.12.1",
+    "theme-vitesse": "^0.6.0",
+    "vite-plugin-vue-markdown": "^0.22.2"
   }
 }

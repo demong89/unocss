@@ -5,6 +5,17 @@ import { backdropFilterBase, borderSpacingBase, filterBase, fontVariantNumericBa
 
 export const theme: Theme = {
   ...miniTheme,
+  aria: {
+    busy: 'busy="true"',
+    checked: 'checked="true"',
+    disabled: 'disabled="true"',
+    expanded: 'expanded="true"',
+    hidden: 'hidden="true"',
+    pressed: 'pressed="true"',
+    readonly: 'readonly="true"',
+    required: 'required="true"',
+    selected: 'selected="true"',
+  },
   animation: {
     keyframes: {
       'pulse': '{0%, 100% {opacity:1} 50% {opacity:.5}}',
@@ -181,6 +192,9 @@ export const theme: Theme = {
     pointer: '(hover) and (pointer: coarse)',
     mouse: '(hover) and (pointer: fine)',
     hd_color: '(dynamic-range: high)',
+  },
+  supports: {
+    grid: '(display: grid)',
   },
   preflightBase: {
     ...transformBase,

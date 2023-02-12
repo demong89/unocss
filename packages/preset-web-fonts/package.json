@@ -1,6 +1,6 @@
 {
   "name": "@unocss/preset-web-fonts",
-  "version": "0.45.23",
+  "version": "0.49.4",
   "description": "Web Fonts support for Uno CSS",
   "author": "Anthony Fu <anthonyfu117@hotmail.com>",
   "license": "MIT",
@@ -42,7 +42,6 @@
   },
   "dependencies": {
     "@unocss/core": "workspace:*",
-    "ohmyfetch": "^0.4.18",
-    "pathe": "^0.3.7"
+    "ofetch": "^0.4.21"
   }
 }

@@ -1,4 +1,4 @@
-import type { Postprocessor, Preset, PresetOptions } from '@unocss/core'
+import type { Postprocessor, Preflight, PreflightContext, Preset, PresetOptions } from '@unocss/core'
 import { preflights } from './preflights'
 import { rules } from './rules'
 import type { Theme, ThemeAnimation } from './theme'
@@ -51,7 +51,7 @@ export interface PresetMiniOptions extends PresetOptions {
    *
    * @default undefined
    */
-  prefix?: string
+  prefix?: string | string[]
   /**
    * Generate preflight
    *
@@ -64,6 +64,7 @@ export const presetMini = (options: PresetMiniOptions = {}): Preset<Theme> => {
   options.dark = options.dark ?? 'class'
   options.attributifyPseudo = options.attributifyPseudo ?? false
   options.preflight = options.preflight ?? true
+  options.variablePrefix = options.variablePrefix ?? 'un-'
 
   return {
     name: '@unocss/preset-mini',
@@ -71,22 +72,37 @@ export const presetMini = (options: PresetMiniOptions = {}): Preset<Theme> => {
     rules,
     variants: variants(options),
     options,
-    postprocess: options.variablePrefix && options.variablePrefix !== 'un-'
-      ? VarPrefixPostprocessor(options.variablePrefix)
-      : undefined,
-    preflights: options.preflight ? preflights : [],
+    postprocess: VarPrefixPostprocessor(options.variablePrefix),
+    preflights: options.preflight ? normalizePreflights(preflights, options.variablePrefix) : [],
     prefix: options.prefix,
   }
 }
 
 export default presetMini
 
-function VarPrefixPostprocessor(prefix: string): Postprocessor {
-  return (obj) => {
-    obj.entries.forEach((i) => {
-      i[0] = i[0].replace(/^--un-/, `--${prefix}`)
-      if (typeof i[1] === 'string')
-        i[1] = i[1].replace(/var\(--un-/g, `var(--${prefix}`)
-    })
+export function VarPrefixPostprocessor(prefix: string): Postprocessor | undefined {
+  if (prefix !== 'un-') {
+    return (obj) => {
+      obj.entries.forEach((i) => {
+        i[0] = i[0].replace(/^--un-/, `--${prefix}`)
+        if (typeof i[1] === 'string')
+          i[1] = i[1].replace(/var\(--un-/g, `var(--${prefix}`)
+      })
+    }
   }
+}
+
+export function normalizePreflights(preflights: Preflight[], variablePrefix: string) {
+  if (variablePrefix !== 'un-') {
+    return preflights.map(p => ({
+      ...p,
+      getCSS: (() => async (ctx: PreflightContext) => {
+        const css = await p.getCSS(ctx)
+        if (css)
+          return css.replace(/--un-/g, `--${variablePrefix}`)
+      })(),
+    }))
+  }
+
+  return preflights
 }

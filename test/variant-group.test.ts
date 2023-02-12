@@ -1,4 +1,4 @@
-import { expandVariantGroup } from '@unocss/core'
+import { collapseVariantGroup, expandVariantGroup } from '@unocss/core'
 import { describe, expect, test } from 'vitest'
 
 describe('variant-group', () => {
@@ -35,5 +35,33 @@ describe('variant-group', () => {
 
   test('square bracket case2', async () => {
     expect(expandVariantGroup('[&]:(a-b c-d)')).toEqual('[&]:a-b [&]:c-d')
+  })
+
+  test('expand with space', async () => {
+    const shortcut = '  a:(b:(c-d d-c)) '
+    expect(expandVariantGroup(shortcut)).toEqual('  a:b:c-d a:b:d-c ')
+    expect(expandVariantGroup(shortcut.trim()).split(/\s+/g)).toMatchInlineSnapshot(`
+      [
+        "a:b:c-d",
+        "a:b:d-c",
+      ]
+    `)
+  })
+
+  test('expand @', async () => {
+    expect(expandVariantGroup('@a:(c-d d-c)')).toEqual('@a:c-d @a:d-c')
+    expect(expandVariantGroup('!@a:(c-d d-c)')).toEqual('!@a:c-d !@a:d-c')
+  })
+
+  test('inlucde ?', async () => {
+    expect(expandVariantGroup('a:(b?c d)')).toEqual('a:b?c a:d')
+  })
+})
+
+describe('collapse-variant-group', () => {
+  test('basic', async () => {
+    expect(collapseVariantGroup('', [])).toEqual('')
+    expect(collapseVariantGroup('a:b:c a:c:b', [])).toEqual('a:b:c a:c:b')
+    expect(collapseVariantGroup('hello a:b a:c middle c:a:b c:d a:d', ['a:', 'c:'])).toEqual('hello a:(b c d) middle c:(a:b d)')
   })
 })

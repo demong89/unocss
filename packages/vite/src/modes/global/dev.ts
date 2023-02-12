@@ -1,17 +1,16 @@
 import type { Plugin, Update, ViteDevServer, ResolvedConfig as ViteResolvedConfig } from 'vite'
-import type { UnocssPluginContext } from '@unocss/core'
+import type { GenerateResult, UnocssPluginContext } from '@unocss/core'
 import { notNull } from '@unocss/core'
+import type { VitePluginConfig } from 'unocss/vite'
 import { LAYER_MARK_ALL, getHash, getPath, resolveId, resolveLayer } from '../../integration'
 
 const WARN_TIMEOUT = 20000
 const WS_EVENT_PREFIX = 'unocss:hmr'
 const HASH_LENGTH = 6
 
-export function GlobalModeDevPlugin({ uno, tokens, affectedModules, onInvalidate, extract, filter }: UnocssPluginContext): Plugin[] {
+export function GlobalModeDevPlugin({ uno, tokens, tasks, flushTasks, affectedModules, onInvalidate, extract, filter, getConfig }: UnocssPluginContext): Plugin[] {
   const servers: ViteDevServer[] = []
   let base = ''
-
-  const tasks: Promise<any>[] = []
   const entries = new Set<string>()
 
   let invalidateTimer: any
@@ -19,6 +18,28 @@ export function GlobalModeDevPlugin({ uno, tokens, affectedModules, onInvalidate
   let lastServedTime = Date.now()
   let resolved = false
   let resolvedWarnTimer: any
+
+  async function generateCSS(layer: string) {
+    await flushTasks()
+    let result: GenerateResult
+    let tokensSize = tokens.size
+    do {
+      result = await uno.generate(tokens)
+      // to capture new tokens created during generation
+      if (tokensSize === tokens.size)
+        break
+      tokensSize = tokens.size
+    } while (true)
+
+    const css = layer === LAYER_MARK_ALL
+      ? result.getLayers(undefined, Array.from(entries)
+        .map(i => resolveLayer(i)).filter((i): i is string => !!i))
+      : result.getLayer(layer)
+    const hash = getHash(css || '', HASH_LENGTH)
+    lastServedHash.set(layer, hash)
+    lastServedTime = Date.now()
+    return { hash, css }
+  }
 
   function configResolved(config: ViteResolvedConfig) {
     base = config.base || ''
@@ -95,21 +116,15 @@ export function GlobalModeDevPlugin({ uno, tokens, affectedModules, onInvalidate
       async configureServer(_server) {
         servers.push(_server)
 
-        _server.ws.on(WS_EVENT_PREFIX, ([layer, hash]: string[]) => {
-          if (lastServedHash.get(layer) !== hash) {
+        _server.ws.on(WS_EVENT_PREFIX, async ([layer, hash]: string[]) => {
+          await generateCSS(layer)
+          if (lastServedHash.get(layer) !== hash)
             sendUpdate(entries)
-          }
-          else {
-            setTimeout(() => {
-              if (lastServedHash.get(layer) !== hash)
-                sendUpdate(entries)
-            }, 50)
-          }
         })
       },
       buildStart() {
         // warm up for preflights
-        uno.generate('', { preflights: true })
+        uno.generate([], { preflights: true })
       },
       transform(code, id) {
         if (filter(code, id))
@@ -136,16 +151,7 @@ export function GlobalModeDevPlugin({ uno, tokens, affectedModules, onInvalidate
         if (!layer)
           return null
 
-        await Promise.all(tasks)
-        const result = await uno.generate(tokens)
-
-        const css = layer === LAYER_MARK_ALL
-          ? result.getLayers(undefined, Array.from(entries)
-            .map(i => resolveLayer(i)).filter((i): i is string => !!i))
-          : result.getLayer(layer)
-        const hash = getHash(css || '', HASH_LENGTH)
-        lastServedHash.set(layer, hash)
-        lastServedTime = Date.now()
+        const { hash, css } = await generateCSS(layer)
         // add hash to the chunk of CSS that it will send back to client to check if there is new CSS generated
         return `/*${hash}*/${css}`
       },
@@ -157,18 +163,28 @@ export function GlobalModeDevPlugin({ uno, tokens, affectedModules, onInvalidate
         return env.command === 'serve' && !config.build?.ssr
       },
       enforce: 'post',
-      transform(code, id) {
+      async transform(code, id) {
         const layer = resolveLayer(getPath(id))
 
         // inject css modules to send callback on css load
         if (layer && code.includes('import.meta.hot')) {
-          return `${code}
-if (import.meta.hot) {
-  try { await import.meta.hot.send('${WS_EVENT_PREFIX}', ['${layer}', __vite__css.slice(2,${2 + HASH_LENGTH})]); }
-  catch (e) { console.warn('[unocss-hmr]', e) }
-  if (!import.meta.url.includes('?'))
-    await new Promise(resolve => setTimeout(resolve, 100))
-}`
+          let hmr = `
+try {
+  await import.meta.hot.send('${WS_EVENT_PREFIX}', ['${layer}', __vite__css.slice(2,${2 + HASH_LENGTH})]);
+} catch (e) {
+  console.warn('[unocss-hmr]', e)
+}
+if (!import.meta.url.includes('?'))
+  await new Promise(resolve => setTimeout(resolve, 100))`
+
+          const config = await getConfig() as VitePluginConfig
+
+          if (config.hmrTopLevelAwait === false)
+            hmr = `;(async function() {${hmr}\n})()`
+
+          hmr = `\nif (import.meta.hot) {${hmr}}`
+
+          return code + hmr
         }
       },
     },

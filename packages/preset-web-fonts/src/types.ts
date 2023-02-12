@@ -1,4 +1,4 @@
-export type WebFontsProviders = 'google' | 'bunny' | 'none'
+export type WebFontsProviders = 'google' | 'bunny' | 'fontshare' | 'none'
 
 export interface WebFontMeta {
   name: string
@@ -42,6 +42,13 @@ export interface WebFontsOptions {
    * @default true
    */
   inlineImports?: boolean
+
+  /**
+   * Custom fetch function
+   *
+   * @default undefined
+   */
+  customFetch?: (url: string) => Promise<any>
 }
 
 export interface Provider {

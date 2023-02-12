@@ -1,10 +1,13 @@
-import { basename, dirname, extname, relative } from 'pathe'
+import { basename, dirname, extname, relative } from 'path'
 import fg from 'fast-glob'
 import fs from 'fs-extra'
 
 const exportSubmodules = '/* @export-submodules */'
 
-const files = await fg(['packages/**/index.ts', '!node_modules/**'], {
+const files = await fg('packages/**/index.ts', {
+  ignore: [
+    '**/node_modules/**',
+  ],
   absolute: true,
 })
 

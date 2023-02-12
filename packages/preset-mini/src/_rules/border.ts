@@ -35,9 +35,9 @@ export const borders: Rule[] = [
 
   // radius
   [/^(?:border-|b-)?(?:rounded|rd)()(?:-(.+))?$/, handlerRounded, { autocomplete: ['(border|b)-(rounded|rd)', '(border|b)-(rounded|rd)-<num>', '(rounded|rd)', '(rounded|rd)-<num>'] }],
-  [/^(?:border-|b-)?(?:rounded|rd)-([rltb])(?:-(.+))?$/, handlerRounded],
+  [/^(?:border-|b-)?(?:rounded|rd)-([rltbse])(?:-(.+))?$/, handlerRounded],
   [/^(?:border-|b-)?(?:rounded|rd)-([rltb]{2})(?:-(.+))?$/, handlerRounded],
-  [/^(?:border-|b-)?(?:rounded|rd)-([bi][se])(?:-(.+))?$/, handlerRounded],
+  [/^(?:border-|b-)?(?:rounded|rd)-([bise][se])(?:-(.+))?$/, handlerRounded],
   [/^(?:border-|b-)?(?:rounded|rd)-([bi][se]-[bi][se])(?:-(.+))?$/, handlerRounded],
 
   // style
@@ -85,14 +85,7 @@ const borderColorResolver = (direction: string) => ([, body]: string[], theme: T
 }
 
 function handlerBorder(m: string[], ctx: RuleContext): CSSEntries | undefined {
-  const borderSizes = handlerBorderSize(m, ctx)
-  const borderStyle = handlerBorderStyle(['', m[1], 'solid'])
-  if (borderSizes && borderStyle) {
-    return [
-      ...borderSizes,
-      ...borderStyle,
-    ]
-  }
+  return handlerBorderSize(m, ctx)
 }
 
 function handlerBorderSize([, a = '', b]: string[], { theme }: RuleContext<Theme>): CSSEntries | undefined {

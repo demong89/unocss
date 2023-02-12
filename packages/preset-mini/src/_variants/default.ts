@@ -9,27 +9,36 @@ import { variantCssLayer, variantInternalLayer, variantScope, variantSelector, v
 import { variantNegative } from './negative'
 import { variantImportant } from './important'
 import { variantCustomMedia, variantPrint } from './media'
+import { variantSupports } from './supports'
 import { partClasses, variantPseudoClassFunctions, variantPseudoClassesAndElements, variantTaggedPseudoClasses } from './pseudo'
+import { variantAria } from './aria'
+import { variantDataAttribute } from './data'
+import { variantContainerQuery } from './container'
 
 export const variants = (options: PresetMiniOptions): Variant<Theme>[] => [
-  variantVariables,
+  variantAria,
+  variantDataAttribute,
   variantCssLayer,
 
   variantSelector,
   variantInternalLayer,
   variantNegative,
-  variantImportant,
+  variantImportant(),
+  variantSupports,
   variantPrint,
   variantCustomMedia,
-  variantBreakpoints,
+  variantBreakpoints(),
   ...variantCombinators,
 
-  variantPseudoClassesAndElements,
-  variantPseudoClassFunctions,
+  variantPseudoClassesAndElements(),
+  variantPseudoClassFunctions(),
   ...variantTaggedPseudoClasses(options),
 
   partClasses,
   ...variantColorsMediaOrClass(options),
   ...variantLanguageDirections,
   variantScope,
+
+  variantContainerQuery,
+  variantVariables,
 ]

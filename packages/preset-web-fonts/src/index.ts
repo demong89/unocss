@@ -2,6 +2,7 @@ import type { Preset } from '@unocss/core'
 import { toArray } from '@unocss/core'
 import { BunnyFontsProvider } from './providers/bunny'
 import { GoogleFontsProvider } from './providers/google'
+import { FontshareProvider } from './providers/fontshare'
 import { NoneProvider } from './providers/none'
 import type { WebFontMeta, WebFontsOptions, WebFontsProviders } from './types'
 
@@ -24,6 +25,7 @@ export function normalizedFontMeta(meta: WebFontMeta | string, defaultProvider: 
 const providers = {
   google: GoogleFontsProvider,
   bunny: BunnyFontsProvider,
+  fontshare: FontshareProvider,
   none: NoneProvider,
 }
 
@@ -33,6 +35,7 @@ const preset = (options: WebFontsOptions = {}): Preset<any> => {
     extendTheme = true,
     inlineImports = true,
     themeKey = 'fontFamily',
+    customFetch,
   } = options
 
   const fontObject = Object.fromEntries(
@@ -46,14 +49,16 @@ const preset = (options: WebFontsOptions = {}): Preset<any> => {
   async function importUrl(url: string) {
     if (inlineImports) {
       if (!importCache[url]) {
-        const { $fetch } = await import('ohmyfetch')
-        importCache[url] = $fetch(url, { headers: {}, retry: 3 })
-          .catch((e) => {
-            console.error('Failed to fetch web fonts')
-            console.error(e)
-            if (typeof process !== 'undefined' && process.env.CI)
-              throw e
-          })
+        const userAgentWoff2 = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36'
+        const promise = customFetch
+          ? customFetch(url)
+          : (await import('ofetch')).$fetch(url, { headers: { 'User-Agent': userAgentWoff2 }, retry: 3 })
+        importCache[url] = promise.catch((e) => {
+          console.error('Failed to fetch web fonts')
+          console.error(e)
+          if (typeof process !== 'undefined' && process.env.CI)
+            throw e
+        })
       }
       return await importCache[url]
     }

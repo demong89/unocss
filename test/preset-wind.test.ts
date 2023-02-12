@@ -16,6 +16,19 @@ const uno = createGenerator({
         b: 'rgba(var(--custom), %alpha)',
       },
     },
+    data: {
+      dropdown: 'data-bs-toggle="dropdown"',
+    },
+    container: {
+      center: true,
+      padding: {
+        'DEFAULT': '1rem',
+        'sm': '2rem',
+        'lg': '4rem',
+        'xl': '5rem',
+        '2xl': '6rem',
+      },
+    },
   },
 })
 
@@ -79,4 +92,40 @@ describe('preset-wind', () => {
     expect(matched).toEqual(new Set(targets))
     expect(css).toMatchSnapshot()
   })
+
+  test('custom var prefix', async () => {
+    const uno = createGenerator({
+      presets: [
+        presetWind({
+          variablePrefix: 'hi-',
+        }),
+      ],
+    })
+
+    const { css } = await uno.generate([
+      'text-opacity-50',
+      'text-red',
+      'scale-100',
+    ].join(' '), { preflights: false })
+
+    expect(css).toMatchSnapshot()
+  })
+})
+
+test('empty prefix', async () => {
+  const uno = createGenerator({
+    presets: [
+      presetWind({
+        variablePrefix: '',
+      }),
+    ],
+  })
+
+  const { css } = await uno.generate([
+    'text-opacity-50',
+    'text-red',
+    'scale-100',
+  ].join(' '), { preflights: false })
+
+  expect(css).toMatchSnapshot()
 })

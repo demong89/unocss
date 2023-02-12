@@ -1,9 +1,15 @@
+import type { Arrayable } from '@unocss/core'
+
 export interface ThemeAnimation {
   keyframes?: Record<string, string>
   durations?: Record<string, string>
   timingFns?: Record<string, string>
   properties?: Record<string, object>
   counts?: Record<string, string | number>
+}
+
+export interface Colors {
+  [key: string]: Colors | string
 }
 
 export interface Theme {
@@ -22,9 +28,9 @@ export interface Theme {
   borderRadius?: Record<string, string>
   breakpoints?: Record<string, string>
   verticalBreakpoints?: Record<string, string>
-  colors?: Record<string, string | Record<string, string>>
+  colors?: Colors
   fontFamily?: Record<string, string>
-  fontSize?: Record<string, [string, string]>
+  fontSize?: Record<string, string | [string, string]>
   lineHeight?: Record<string, string>
   letterSpacing?: Record<string, string>
   wordSpacing?: Record<string, string>
@@ -36,6 +42,8 @@ export interface Theme {
   lineWidth?: Record<string, string>
   spacing?: Record<string, string>
   duration?: Record<string, string>
+  aria?: Record<string, string>
+  data?: Record<string, string>
   // filters
   blur?: Record<string, string>
   dropShadow?: Record<string, string | string[]>
@@ -43,6 +51,10 @@ export interface Theme {
   easing?: Record<string, string>
   // media queries
   media?: Record<string, string>
+  // supports queries
+  supports?: Record<string, string>
+  // container queries
+  containers?: Record<string, string>
   // animation
   animation?: ThemeAnimation
   // grids
@@ -55,8 +67,10 @@ export interface Theme {
   // container
   container?: {
     center?: boolean
+    padding?: string | Record<string, string>
   }
   // vars
   /** Used to generate CSS variables placeholder in preflight */
+  preflightRoot?: Arrayable<string>
   preflightBase?: Record<string, string | number>
 }

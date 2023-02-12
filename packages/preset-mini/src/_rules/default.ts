@@ -12,7 +12,7 @@ import { rings } from './ring'
 import { boxShadows } from './shadow'
 import { aspectRatio, sizes } from './size'
 import { margins, paddings } from './spacing'
-import { appearances, breaks, contentVisibility, contents, cursors, displays, fontSmoothings, fontStyles, pointerEvents, resizes, textOverflows, textTransforms, userSelects, whitespaces } from './static'
+import { appearances, breaks, contains, contentVisibility, contents, cursors, displays, fontSmoothings, fontStyles, pointerEvents, resizes, textOverflows, textTransforms, userSelects, whitespaces } from './static'
 import { transforms } from './transform'
 import { cssProperty, cssVariables } from './variables'
 import { questionMark } from './question-mark'
@@ -20,6 +20,7 @@ import { textAligns, verticalAligns } from './align'
 import { appearance, outline, willChange } from './behaviors'
 import { textDecorations } from './decoration'
 import { svgUtilities } from './svg'
+import { containerParent } from './container'
 
 export const rules: Rule[] = [
   cssVariables,
@@ -75,6 +76,8 @@ export const rules: Rule[] = [
   transitions,
   transforms,
   willChange,
+  containerParent,
+  contains,
 
   // should be the last
   questionMark,

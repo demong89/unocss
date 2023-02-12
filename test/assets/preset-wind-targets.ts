@@ -66,6 +66,7 @@ export const presetWindTargets: string[] = [
   'bg-repeat-revert',
   'bg-right-bottom',
   'bg-scroll',
+  'bg-[url(https://test.unocss.png)]',
   'bg-[length:10_20rem]',
   'bg-[length:1/2_20rem]',
   'bg-[position:10_20rem]',
@@ -366,6 +367,9 @@ export const presetWindTargets: string[] = [
   // variants combinators
   'svg:fill-red',
 
+  // variants supports: grid
+  'supports-grid:block',
+
   // variants media: contrasts, motions, orientations
   'contrast-more:bg-black',
   'uno-layer-_pre:contrast-less:bg-gray-3',
@@ -388,8 +392,18 @@ export const presetWindTargets: string[] = [
   '-scroll-p-px',
   '-space-x-4',
 
+  // variants experimental
+  '@hover-text-red',
+  '@hover:[[open]_&]:text-blue',
+
   // variants - multiple parents
   '@dark:contrast-more:p-10',
+
+  // variants - aria (theme)
+  'aria-hidden:hidden',
+
+  // variants - data (theme)
+  'data-dropdown:ring-green',
 ]
 
 export const presetWindNonTargets: string[] = [

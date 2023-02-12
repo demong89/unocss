@@ -12,7 +12,7 @@ npm i -D @unocss/preset-web-fonts
 import presetWebFonts from '@unocss/preset-web-fonts'
 import presetUno from '@unocss/preset-uno'
 
-Unocss({
+UnoCSS({
   presets: [
     presetUno(),
     presetWebFonts({
@@ -71,8 +71,35 @@ Currently supported Providers:
 - `none` - do nothing, treat the font as system font
 - `google` - [Google Fonts](https://fonts.google.com/)
 - `bunny` - [Privacy-Friendly Google Fonts](https://fonts.bunny.net/)
+- `fontshare` - [Quality Font Service by ITF](https://www.fontshare.com/)
 
 PR welcome to add more providers 🙌
+
+### Custom fetch function
+
+Use your own function to fetch font source.
+
+```ts
+import presetWebFonts from '@unocss/preset-web-fonts'
+import presetUno from '@unocss/preset-uno'
+import axios from 'axios'
+import ProxyAgent from 'proxy-agent'
+
+UnoCSS({
+  presets: [
+    presetUno(),
+    presetWebFonts({
+      // use axios with an https proxy
+      customFetch: (url: string) => axios.get(url, { httpsAgent: new ProxyAgent('https://localhost:7890') }),
+      provider: 'google',
+      fonts: {
+        sans: 'Roboto',
+        mono: ['Fira Code', 'Fira Mono:400,700'],
+      },
+    }),
+  ],
+})
+```
 
 ## Configuration
 

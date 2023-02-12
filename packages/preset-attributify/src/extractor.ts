@@ -8,10 +8,10 @@ const strippedPrefixes = [
 ]
 
 const splitterRE = /[\s'"`;]+/g
-const elementRE = /<\w(?=.*>)[\w:\.$-]*\s((?:['"`\{].*?['"`\}]|.*?)*?)>/gs
-const valuedAttributeRE = /([?]|(?!\d|-{2}|-\d)[a-zA-Z0-9\u00A0-\uFFFF-_:!%-]+)(?:={?(["'])([^\2]*?)\2}?)?/g
+const elementRE = /<\w(?=.*>)[\w:\.$-]*\s((?:['"`\{].*?['"`\}]|.*?)*?)(?:>|\Z)/gs
+const valuedAttributeRE = /([?]|(?!\d|-{2}|-\d)[a-zA-Z0-9\u00A0-\uFFFF-_:!%-.]+)=?(?:["]([^"]*)["]|[']([^']*)[']|[{]([^}]*)[}])?/gms
 
-export const defaultIgnoreAttributes = ['placeholder']
+export const defaultIgnoreAttributes = ['placeholder', 'fill', 'opacity']
 
 export const extractorAttributify = (options?: AttributifyOptions): Extractor => {
   const ignoreAttributes = options?.ignoreAttributes ?? defaultIgnoreAttributes
@@ -22,8 +22,11 @@ export const extractorAttributify = (options?: AttributifyOptions): Extractor =>
     name: 'attributify',
     extract({ code }) {
       const result = Array.from(code.matchAll(elementRE))
+        .filter(match => match[0].endsWith('>'))
         .flatMap(match => Array.from((match[1] || '').matchAll(valuedAttributeRE)))
-        .flatMap(([, name, _, content]) => {
+        .flatMap(([, name, ...contents]) => {
+          const content = contents.filter(Boolean).join('')
+
           if (ignoreAttributes.includes(name))
             return []
 
@@ -50,9 +53,13 @@ export const extractorAttributify = (options?: AttributifyOptions): Extractor =>
               .filter(isValidSelector)
           }
           else {
-            return content
-              .split(splitterRE)
-              .filter(Boolean)
+            if (options?.prefixedOnly && options.prefix && !name.startsWith(options.prefix))
+              return []
+
+            const extractTernary = Array.from(content.matchAll(/(?:[\?:].*?)(["'])([^\1]*?)\1/gms))
+              .map(([,,v]) => v.split(splitterRE)).flat()
+            return (extractTernary.length ? extractTernary : content.split(splitterRE))
+              .filter(v => Boolean(v) && v !== ':')
               .map(v => `[${name}~="${v}"]`)
           }
         })

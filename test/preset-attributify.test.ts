@@ -23,18 +23,24 @@ describe('attributify', () => {
   v-bind:p="y-2 x-4"
   border="2 rounded blue-200"
   un-children="m-auto"
+  x-transition:enter-start="opacity-0"
+  :x-transition:enter-start="opacity-0"
+  v-bind:x-transition:enter-start="opacity-0"
   pt2 rounded-sm
+  size="w-1 h-0.5"
   inline-block
   transform
   translate-x-100%
   translate-y-[10%]
   rotate-30
-  after="content-[unocss]"
+  after="content-[quoted:uno_css]"
   rotate-60="" ma=""
   m='\`
   1 2
   3
 \`'
+  ml-1.5
+  ml-1..6
 >
   Button
 </button>
@@ -65,8 +71,8 @@ describe('attributify', () => {
       <label absolute leading-1rem left-4 pointer-events-none text-gray-7 top="1/3" transition="200 linear"
         peer-not-placeholder-shown="-translate-y-4 scale-75 origin-top-left text-green-500"
         peer-focus="-translate-y-4 scale-75 origin-top-left text-green-500"
-        before="content-!"
-        after="content-[!]"
+        before-content="[quoted:!]"
+        after="content-[string:!]"
       >Experience now</label>
     </div>
   </div>
@@ -87,6 +93,8 @@ describe('attributify', () => {
   lg={"bg-blue-600"}
   class={"absolute fixed"}
   important={"text-red bg-red"}
+  bg={ withBg ? "sky-400 hover:sky-500" : "transparent" }
+  font={foo > bar ? 'mono' : 'sans'}
   bg={"blue-400 hover:blue-500 dark:!blue-500 dark:hover:blue-600"}
   text={"sm white"}
   flex="!~ col"
@@ -100,12 +108,13 @@ describe('attributify', () => {
   transform
   translate-x-100
   rotate-30
-  after={"content-[unocss]"}
+  after={"content-[quoted:uno-css]"}
   rotate-60="" ma=""
   m='\`
   1 2
   3
 \`'
+  ml-1.5
 >
   Button
 </button>
@@ -167,6 +176,18 @@ describe('attributify', () => {
         return typeof r === 'string' ? r : r ? r.matcher : r
       }))
       .toMatchSnapshot()
+  })
+
+  test('prefixedOnly', async () => {
+    const uno = createGenerator({
+      presets: [
+        presetAttributify({ strict: true, prefix: 'un-', prefixedOnly: true }),
+        presetUno({ attributifyPseudo: true }),
+      ],
+    })
+
+    const { css } = await uno.generate(fixture1, { preflights: false })
+    expect(css).toMatchSnapshot()
   })
 
   test('fixture1', async () => {

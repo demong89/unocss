@@ -48,7 +48,7 @@ const targets2 = [
   'selector-[section]:c-gray-400',
   'selector-[.cls.multi]:c-gray-400',
   'md:selector-[aside]:shadow-xl',
-  'dark:selector-[.body_main]:bg-white',
+  'dark:selector-[.body\\_main]:bg-white',
 ]
 
 const nonTargets = [
@@ -166,4 +166,40 @@ test('non-targets', async () => {
 
   expect(Array.from(matched)).toEqual([])
   expect(css).toBe('')
+})
+
+test('custom var prefix', async () => {
+  const uno = createGenerator({
+    presets: [
+      presetUno({
+        variablePrefix: 'hi-',
+      }),
+    ],
+  })
+
+  const { css } = await uno.generate([
+    'text-opacity-50',
+    'text-red',
+    'scale-100',
+  ].join(' '), { preflights: false })
+
+  expect(css).toMatchSnapshot()
+})
+
+test('empty prefix', async () => {
+  const uno = createGenerator({
+    presets: [
+      presetUno({
+        variablePrefix: '',
+      }),
+    ],
+  })
+
+  const { css } = await uno.generate([
+    'text-opacity-50',
+    'text-red',
+    'scale-100',
+  ].join(' '), { preflights: false })
+
+  expect(css).toMatchSnapshot()
 })

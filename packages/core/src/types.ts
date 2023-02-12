@@ -64,7 +64,7 @@ export interface RuleContext<Theme extends {} = {}> {
   /**
    * UnoCSS generator instance
    */
-  generator: UnoGenerator
+  generator: UnoGenerator<Theme>
   /**
    * The theme object
    */
@@ -76,7 +76,7 @@ export interface RuleContext<Theme extends {} = {}> {
   /**
    * The result of variant matching.
    */
-  variantMatch: VariantMatchedResult
+  variantMatch: VariantMatchedResult<Theme>
   /**
    * Construct a custom CSS rule.
    * Variants and selector escaping will be handled automatically.
@@ -85,15 +85,15 @@ export interface RuleContext<Theme extends {} = {}> {
   /**
    * Available only when `details` option is enabled.
    */
-  rules?: Rule[]
+  rules?: Rule<Theme>[]
   /**
    * Available only when `details` option is enabled.
    */
-  shortcuts?: Shortcut[]
+  shortcuts?: Shortcut<Theme>[]
   /**
    * Available only when `details` option is enabled.
    */
-  variants?: Variant[]
+  variants?: Variant<Theme>[]
 }
 
 export interface VariantContext<Theme extends {} = {}> {
@@ -104,7 +104,7 @@ export interface VariantContext<Theme extends {} = {}> {
   /**
    * UnoCSS generator instance
    */
-  generator: UnoGenerator
+  generator: UnoGenerator<Theme>
   /**
    * The theme object
    */
@@ -121,7 +121,7 @@ export interface PreflightContext<Theme extends {} = {}> {
   /**
    * UnoCSS generator instance
    */
-  generator: UnoGenerator
+  generator: UnoGenerator<Theme>
   /**
    * The theme object
    */
@@ -160,7 +160,7 @@ export interface RuleMeta {
   /**
    * Matching prefix before this util
    */
-  prefix?: string
+  prefix?: string | string[]
 
   /**
    * Internal rules will only be matched for shortcuts but not the user code.
@@ -303,9 +303,18 @@ export type ThemeExtender<T> = (theme: T) => void
 
 export interface ConfigBase<Theme extends {} = {}> {
   /**
-   * Rules to generate CSS utilities
+   * Rules to generate CSS utilities.
+   *
+   * Later entries have higher priority.
    */
   rules?: Rule<Theme>[]
+
+  /**
+   * Variant separator
+   *
+   * @default [':', '-']
+   */
+  separators?: Arrayable<string>
 
   /**
    * Variants that preprocess the selectors,
@@ -316,6 +325,8 @@ export interface ConfigBase<Theme extends {} = {}> {
   /**
    * Similar to Windi CSS's shortcuts,
    * allows you have create new utilities by combining existing ones.
+   *
+   * Later entries have higher priority.
    */
   shortcuts?: UserShortcuts<Theme>
 
@@ -463,7 +474,7 @@ export interface Preset<Theme extends {} = {}> extends ConfigBase<Theme> {
   /**
    * Apply prefix to all utilities and shortcuts
    */
-  prefix?: string
+  prefix?: string | string[]
   /**
    * Apply layer to all utilities and shortcuts
    */
@@ -531,6 +542,13 @@ export interface UnocssPluginContext<Config extends UserConfig = UserConfig> {
   /** Module IDs that been affected by UnoCSS */
   affectedModules: Set<string>
 
+  /** Pending promises */
+  tasks: Promise<any>[]
+  /**
+   * Await all pending tasks
+   */
+  flushTasks(): Promise<any>
+
   filter: (code: string, id: string) => boolean
   extract: (code: string, id?: string) => Promise<void>
 
@@ -581,6 +599,19 @@ export interface SourceCodeTransformer {
   transform: (code: MagicString, id: string, ctx: UnocssPluginContext) => Awaitable<void>
 }
 
+export interface ExtraContentOptions {
+  /**
+   * Glob patterns to match the files to be extracted
+   * In dev mode, the files will be watched and trigger HMR
+   */
+  filesystem?: string[]
+
+  /**
+   * Plain text to be extracted
+   */
+  plain?: string[]
+}
+
 /**
  * For other modules to aggregate the options
  */
@@ -611,27 +642,33 @@ export interface PluginOptions {
    * Custom transformers to the source code
    */
   transformers?: SourceCodeTransformer[]
+
+  /**
+   * Extra content outside of build pipeline (assets, backend, etc.) to be extracted
+   */
+  extraContent?: ExtraContentOptions
 }
 
 export interface UserConfig<Theme extends {} = {}> extends ConfigBase<Theme>, UserOnlyOptions<Theme>, GeneratorOptions, PluginOptions, CliOptions {}
 export interface UserConfigDefaults<Theme extends {} = {}> extends ConfigBase<Theme>, UserOnlyOptions<Theme> {}
 
-export interface ResolvedConfig extends Omit<
-RequiredByKey<UserConfig, 'mergeSelectors' | 'theme' | 'rules' | 'variants' | 'layers' | 'extractors' | 'blocklist' | 'safelist' | 'preflights' | 'sortLayers'>,
+export interface ResolvedConfig<Theme extends {} = {}> extends Omit<
+RequiredByKey<UserConfig<Theme>, 'mergeSelectors' | 'theme' | 'rules' | 'variants' | 'layers' | 'extractors' | 'blocklist' | 'safelist' | 'preflights' | 'sortLayers'>,
 'rules' | 'shortcuts' | 'autocomplete'
 > {
-  presets: Preset[]
-  shortcuts: Shortcut[]
-  variants: VariantObject[]
+  presets: Preset<Theme>[]
+  shortcuts: Shortcut<Theme>[]
+  variants: VariantObject<Theme>[]
   preprocess: Preprocessor[]
   postprocess: Postprocessor[]
   rulesSize: number
-  rulesDynamic: [number, ...DynamicRule][]
-  rulesStaticMap: Record<string, [number, CSSObject | CSSEntries, RuleMeta | undefined, Rule] | undefined>
+  rulesDynamic: [number, ...DynamicRule<Theme>][]
+  rulesStaticMap: Record<string, [number, CSSObject | CSSEntries, RuleMeta | undefined, Rule<Theme>] | undefined>
   autocomplete: {
     templates: (AutoCompleteFunction | AutoCompleteTemplate)[]
     extractors: AutoCompleteExtractor[]
   }
+  separators: string[]
 }
 
 export interface GenerateResult {
@@ -642,11 +679,11 @@ export interface GenerateResult {
   matched: Set<string>
 }
 
-export type VariantMatchedResult = readonly [
+export type VariantMatchedResult<Theme extends {} = {}> = readonly [
   raw: string,
   current: string,
   variantHandlers: VariantHandler[],
-  variants: Set<Variant>,
+  variants: Set<Variant<Theme>>,
 ]
 
 export type ParsedUtil = readonly [
@@ -663,13 +700,13 @@ export type RawUtil = readonly [
   meta: RuleMeta | undefined,
 ]
 
-export type StringifiedUtil = readonly [
+export type StringifiedUtil<Theme extends {} = {}> = readonly [
   index: number,
   selector: string | undefined,
   body: string,
   parent: string | undefined,
   meta: RuleMeta | undefined,
-  context: RuleContext | undefined,
+  context: RuleContext<Theme> | undefined,
   noMerge: boolean | undefined,
 ]
 

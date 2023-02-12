@@ -1,7 +1,7 @@
 import type { Preset } from '@unocss/core'
 import type { PresetMiniOptions, Theme } from '@unocss/preset-mini'
 import { rules, shortcuts, theme, variants } from '@unocss/preset-wind'
-import { preflights } from '@unocss/preset-mini'
+import { VarPrefixPostprocessor, normalizePreflights, preflights } from '@unocss/preset-mini'
 import { variantColorMix } from './variants/mix'
 
 export type { Theme }
@@ -12,6 +12,7 @@ export const presetUno = (options: PresetUnoOptions = {}): Preset<Theme> => {
   options.dark = options.dark ?? 'class'
   options.attributifyPseudo = options.attributifyPseudo ?? false
   options.preflight = options.preflight ?? true
+  options.variablePrefix = options.variablePrefix ?? 'un-'
 
   return {
     name: '@unocss/preset-uno',
@@ -20,10 +21,11 @@ export const presetUno = (options: PresetUnoOptions = {}): Preset<Theme> => {
     shortcuts,
     variants: [
       ...variants(options),
-      variantColorMix,
+      variantColorMix(),
     ],
     options,
-    preflights: options.preflight ? preflights : [],
+    postprocess: VarPrefixPostprocessor(options.variablePrefix),
+    preflights: options.preflight ? normalizePreflights(preflights, options.variablePrefix) : [],
     prefix: options.prefix,
   }
 }

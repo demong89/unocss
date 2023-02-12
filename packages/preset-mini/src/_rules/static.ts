@@ -2,6 +2,7 @@ import type { Rule } from '@unocss/core'
 import { globalKeywords, handler as h, makeGlobalStaticRules } from '../utils'
 
 const cursorValues = ['auto', 'default', 'none', 'context-menu', 'help', 'pointer', 'progress', 'wait', 'cell', 'crosshair', 'text', 'vertical-text', 'alias', 'copy', 'move', 'no-drop', 'not-allowed', 'grab', 'grabbing', 'all-scroll', 'col-resize', 'row-resize', 'n-resize', 'e-resize', 's-resize', 'w-resize', 'ne-resize', 'nw-resize', 'se-resize', 'sw-resize', 'ew-resize', 'ns-resize', 'nesw-resize', 'nwse-resize', 'zoom-in', 'zoom-out']
+const containValues = ['none', 'strict', 'content', 'size', 'inline-size', 'layout', 'style', 'paint']
 
 export const varEmpty = ' '
 
@@ -28,6 +29,18 @@ export const appearances: Rule[] = [
 export const cursors: Rule[] = [
   [/^cursor-(.+)$/, ([, c]) => ({ cursor: h.bracket.cssvar.global(c) })],
   ...cursorValues.map((v): Rule => [`cursor-${v}`, { cursor: v }]),
+]
+
+export const contains: Rule[] = [
+  [/^contain-(.*)$/, ([, d]) => {
+    if (h.bracket(d) != null) {
+      return {
+        contain: h.bracket(d)!.split(' ').map(e => h.cssvar.fraction(e) ?? e).join(' '),
+      }
+    }
+
+    return containValues.includes(d) ? { contain: d } : undefined
+  }],
 ]
 
 export const pointerEvents: Rule[] = [
@@ -69,8 +82,7 @@ export const contentVisibility: Rule[] = [
 ]
 
 export const contents: Rule[] = [
-  [/^content-\[(.+)\]$/, ([, v]) => ({ content: `"${v}"` })],
-  [/^content-(\$.+)]$/, ([, v]) => ({ content: h.cssvar(v) })],
+  [/^content-(.+)$/, ([, v]) => ({ content: h.bracket.cssvar(v) })],
   ['content-empty', { content: '""' }],
   ['content-none', { content: '""' }],
 ]
@@ -79,6 +91,7 @@ export const breaks: Rule[] = [
   ['break-normal', { 'overflow-wrap': 'normal', 'word-break': 'normal' }],
   ['break-words', { 'overflow-wrap': 'break-word' }],
   ['break-all', { 'word-break': 'break-all' }],
+  ['break-keep', { 'word-break': 'keep-all' }],
 ]
 
 export const textOverflows: Rule[] = [

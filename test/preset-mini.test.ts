@@ -23,6 +23,9 @@ const uno = createGenerator({
         camelCase: '#234',
       },
     },
+    spacing: {
+      safe: 'max(env(safe-area-inset-left), env(safe-area-inset-right))',
+    },
   },
 })
 
@@ -94,6 +97,24 @@ describe('preset-mini', () => {
     expect(css).toMatchSnapshot()
   })
 
+  test('empty prefix', async () => {
+    const uno = createGenerator({
+      presets: [
+        presetMini({
+          variablePrefix: '',
+        }),
+      ],
+    })
+
+    const { css } = await uno.generate([
+      'text-opacity-50',
+      'text-red',
+      'scale-100',
+    ].join(' '), { preflights: false })
+
+    expect(css).toMatchSnapshot()
+  })
+
   test('nested theme colors', async () => {
     const { css, matched } = await uno.generate([
       'text-a-b-c',
@@ -136,6 +157,41 @@ describe('preset-mini', () => {
 
     // @ts-expect-error types
     expect(uno.config.theme.fontSize.lg).toEqual(['3rem', '1.5em'])
+    expect(css).toMatchSnapshot()
+  })
+
+  test('dark class', async () => {
+    const uno = createGenerator({
+      presets: [
+        presetMini(),
+      ],
+    })
+
+    const { css } = await uno.generate([
+      'dark:scope-[.hello]:text-1/2',
+      'scope-[[world]]:light:text-1/3',
+    ].join(' '), {
+      preflights: false,
+    })
+
+    expect(css).toMatchSnapshot()
+  })
+
+  test('the :active pseudo is sorted and separated after other pseudo', async () => {
+    const uno = createGenerator({
+      presets: [
+        presetMini(),
+      ],
+    })
+
+    const { css } = await uno.generate([
+      'hover:bg-blue-3',
+      'active:bg-blue-3',
+      'focus:bg-blue-3',
+    ].join(' '), {
+      preflights: false,
+    })
+
     expect(css).toMatchSnapshot()
   })
 })

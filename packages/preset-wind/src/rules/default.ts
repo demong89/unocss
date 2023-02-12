@@ -8,6 +8,8 @@ import {
   borders,
   boxShadows,
   boxSizing,
+  containerParent,
+  contains,
   contentVisibility,
   contents,
   cssProperty,
@@ -77,6 +79,7 @@ export const rules: Rule[] = [
   cssVariables,
   cssProperty,
   container,
+  contains,
   screenReadersAccess,
   pointerEvents,
   appearances,
@@ -134,7 +137,6 @@ export const rules: Rule[] = [
   textColors,
   textDecorations,
   fontSmoothings,
-  // TODO placeholders,
   tabSizes,
   textStrokes,
   textShadows,
@@ -156,6 +158,7 @@ export const rules: Rule[] = [
   contentVisibility,
   contents,
   placeholders,
+  containerParent,
 
   // should be the last
   questionMark,

@@ -3,7 +3,7 @@ import Vue from '@vitejs/plugin-vue'
 import Inspect from 'vite-plugin-inspect'
 import Components from 'unplugin-vue-components/vite'
 import AutoImport from 'unplugin-auto-import/vite'
-import Unocss from '@unocss/vite'
+import UnoCSS from '@unocss/vite'
 import { alias } from '../alias'
 
 export default defineConfig({
@@ -13,7 +13,9 @@ export default defineConfig({
   },
   plugins: [
     Vue(),
-    Unocss(),
+    UnoCSS({
+      // hmrTopLevelAwait: false, // Related to #2066
+    }),
     Inspect(),
     Components({
       dirs: [
@@ -28,6 +30,10 @@ export default defineConfig({
         '@vueuse/core',
         '@vueuse/math',
       ],
+      dirs: [
+        'src/composables',
+      ],
+      vueTemplate: true,
       dts: 'src/auto-imports.d.ts',
     }),
   ],

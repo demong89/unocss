@@ -1,3 +1,5 @@
+import { resolve } from 'path'
+import { fileURLToPath } from 'url'
 import type { AstroIntegration } from 'astro'
 import type { VitePluginConfig } from '@unocss/vite'
 import VitePlugin from '@unocss/vite'
@@ -16,6 +18,12 @@ export interface AstroIntegrationConfig<Theme extends {} = {}> extends VitePlugi
    * @default true
    */
   injectEntry?: boolean | string
+
+  /**
+   * Inject extra imports for every astro page
+   * @default []
+   */
+  injectExtra?: string[]
 }
 
 export default function UnoCSSAstroIntegration<Theme extends {}>(
@@ -25,14 +33,20 @@ export default function UnoCSSAstroIntegration<Theme extends {}>(
   const {
     injectEntry = true,
     injectReset: includeReset = true,
+    injectExtra = [],
   } = options
 
   return {
     name: 'unocss',
     hooks: {
       'astro:config:setup': async ({ config, injectScript }) => {
+        // Adding components to UnoCSS's extra content
+        options.extraContent ||= {}
+        options.extraContent.filesystem ||= []
+        options.extraContent.filesystem.push(resolve(fileURLToPath(config.root), 'src/components/**/*').replace(/\\/g, '/'))
+
         config.vite.plugins ||= []
-        config.vite.plugins.push(...VitePlugin(options, defaults))
+        config.vite.plugins.push(...VitePlugin(options, defaults) as any)
 
         const injects: string[] = []
         if (includeReset) {
@@ -46,6 +60,8 @@ export default function UnoCSSAstroIntegration<Theme extends {}>(
             ? injectEntry
             : 'import "uno.css"')
         }
+        if (injectExtra.length > 0)
+          injects.push(...injectExtra)
         if (injects?.length)
           injectScript('page-ssr', injects.join('\n'))
       },

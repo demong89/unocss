@@ -1,5 +1,5 @@
 import type { CSSEntries, CSSObject, DynamicMatcher, ParsedColorValue, Rule, RuleContext, VariantContext } from '@unocss/core'
-import { toArray } from '@unocss/core'
+import { isString, toArray } from '@unocss/core'
 import type { Theme } from '../theme'
 import { colorOpacityToString, colorToString, parseCssColor } from './colors'
 import { handler as h } from './handlers'
@@ -47,6 +47,22 @@ function getThemeColor(theme: Theme, colors: string[]) {
 }
 
 /**
+ * Split utility shorthand delimited by / or :
+ */
+export function splitShorthand(body: string, type: string) {
+  const split = body.split(/(?:\/|:)/)
+
+  if (split[0] === `[${type}`) {
+    return [
+      split.slice(0, 2).join(':'),
+      split[2],
+    ]
+  }
+
+  return split
+}
+
+/**
  * Parse color string into {@link ParsedColorValue} (if possible). Color value will first be matched to theme object before parsing.
  * See also color.tests.ts for more examples.
  *
@@ -61,15 +77,7 @@ function getThemeColor(theme: Theme, colors: string[]) {
  * @return {ParsedColorValue|undefined}  {@link ParsedColorValue} object if string is parseable.
  */
 export function parseColor(body: string, theme: Theme): ParsedColorValue | undefined {
-  const split = body.split(/(?:\/|:)/)
-  let main, opacity
-  if (split[0] === '[color') {
-    main = split.slice(0, 2).join(':')
-    opacity = split[2]
-  }
-  else {
-    [main, opacity] = split
-  }
+  const [main, opacity] = splitShorthand(body, 'color')
 
   const colors = main
     .replace(/([a-z])([0-9])/g, '$1-$2')
@@ -227,8 +235,48 @@ export function makeGlobalStaticRules(prefix: string, property?: string) {
   return globalKeywords.map(keyword => [`${prefix}-${keyword}`, { [property ?? prefix]: keyword }] as Rule)
 }
 
-export function getComponent(str: string, open: string, close: string, separator: string) {
+export function getBracket(str: string, open: string, close: string) {
   if (str === '')
+    return
+
+  const l = str.length
+  let parenthesis = 0
+  let opened = false
+  let openAt = 0
+  for (let i = 0; i < l; i++) {
+    switch (str[i]) {
+      case open:
+        if (!opened) {
+          opened = true
+          openAt = i
+        }
+        parenthesis++
+        break
+
+      case close:
+        --parenthesis
+        if (parenthesis < 0)
+          return
+        if (parenthesis === 0) {
+          return [
+            str.slice(openAt, i + 1),
+            str.slice(i + 1),
+            str.slice(0, openAt),
+          ]
+        }
+        break
+    }
+  }
+}
+
+export function getComponent(str: string, open: string, close: string, separators: string | string[]) {
+  if (str === '')
+    return
+
+  if (isString(separators))
+    separators = [separators]
+
+  if (separators.length === 0)
     return
 
   const l = str.length
@@ -244,14 +292,17 @@ export function getComponent(str: string, open: string, close: string, separator
           return
         break
 
-      case separator:
-        if (parenthesis === 0) {
-          if (i === 0 || i === l - 1)
-            return
-          return [
-            str.slice(0, i),
-            str.slice(i + 1),
-          ]
+      default:
+        for (const separator of separators) {
+          const separatorLength = separator.length
+          if (separatorLength && separator === str.slice(i, i + separatorLength) && parenthesis === 0) {
+            if (i === 0 || i === l - separatorLength)
+              return
+            return [
+              str.slice(0, i),
+              str.slice(i + separatorLength),
+            ]
+          }
         }
     }
   }
@@ -262,16 +313,14 @@ export function getComponent(str: string, open: string, close: string, separator
   ]
 }
 
-export function getComponents(str: string, separator: string, limit?: number) {
-  if (separator.length !== 1)
-    return
+export function getComponents(str: string, separators: string | string[], limit?: number) {
   limit = limit ?? 10
   const components = []
   let i = 0
   while (str !== '') {
     if (++i > limit)
       return
-    const componentPair = getComponent(str, '(', ')', separator)
+    const componentPair = getComponent(str, '(', ')', separators)
     if (!componentPair)
       return
     const [component, rest] = componentPair

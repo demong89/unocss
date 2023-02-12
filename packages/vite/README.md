@@ -10,11 +10,11 @@ npm i -D unocss
 
 ```ts
 // vite.config.ts
-import Unocss from 'unocss/vite'
+import UnoCSS from 'unocss/vite'
 
 export default {
   plugins: [
-    Unocss({ /* options */ }),
+    UnoCSS({ /* options */ }),
   ],
 }
 ```
@@ -37,11 +37,11 @@ npm i -D @unocss/vite
 
 ```ts
 // vite.config.ts
-import Unocss from '@unocss/vite'
+import UnoCSS from '@unocss/vite'
 
 export default {
   plugins: [
-    Unocss({
+    UnoCSS({
       presets: [
         /* no presets by default */
       ],
@@ -75,7 +75,7 @@ This mode will inject generated CSS to Svelte's `<style>` for isolation.
 
 Since `Web Components` uses `Shadow DOM`, there is no way to style content directly from a global stylesheet (unless you use `custom css vars`, those will penetrate the `Shadow DOM`), you need to inline the generated css by the plugin into the `Shadow DOM` style.
 
-To inline the generated css, you only need to configure the plugin mode to `shadow-dom` and include `@unocss-placeholder` magic placeholder on each web component style css block.
+To inline the generated css, you only need to configure the plugin mode to `shadow-dom` and include `@unocss-placeholder` magic placeholder on each web component style css block. If you are defining your Web Components in Vue SFCs and want to define custom styles alongside UnoCSS, you can wrap placeholder in a CSS comment to avoid syntax errors in your IDE.
 
 ###### `per-module` (Experimental)
 
@@ -111,12 +111,12 @@ If you're using `@vitejs/plugin-react`:
 ```ts
 // vite.config.js
 import react from '@vitejs/plugin-react'
-import Unocss from 'unocss/vite'
+import UnoCSS from 'unocss/vite'
 
 export default {
   plugins: [
     react(),
-    Unocss({
+    UnoCSS({
       /* options */
     }),
   ],
@@ -128,12 +128,12 @@ or if you're using `@vitejs/plugin-react-refresh`:
 ```ts
 // vite.config.js
 import reactRefresh from '@vitejs/plugin-react-refresh'
-import Unocss from 'unocss/vite'
+import UnoCSS from 'unocss/vite'
 
 export default {
   plugins: [
     reactRefresh(),
-    Unocss({
+    UnoCSS({
       /* options */
     }),
   ],
@@ -147,11 +147,11 @@ If you are using `@vitejs/plugin-react` with `@unocss/preset-attributify`, you m
 ```ts
 // vite.config.js
 import react from '@vitejs/plugin-react'
-import Unocss from 'unocss/vite'
+import UnoCSS from 'unocss/vite'
 
 export default {
   plugins: [
-    Unocss({
+    UnoCSS({
       /* options */
     }),
     react(),
@@ -168,12 +168,12 @@ If you're using `@preact/preset-vite`:
 ```ts
 // vite.config.js
 import preact from '@preact/preset-vite'
-import Unocss from 'unocss/vite'
+import UnoCSS from 'unocss/vite'
 
 export default {
   plugins: [
     preact(),
-    Unocss({
+    UnoCSS({
       /* options */
     }),
   ],
@@ -185,12 +185,12 @@ or if you're using `@prefresh/vite`:
 ```ts
 // vite.config.js
 import prefresh from '@prefresh/vite'
-import Unocss from 'unocss/vite'
+import UnoCSS from 'unocss/vite'
 
 export default {
   plugins: [
     prefresh(),
-    Unocss({
+    UnoCSS({
       /* options */
     }),
   ],
@@ -204,11 +204,11 @@ If you are using `@preact/preset-vite` with `@unocss/preset-attributify`, you mu
 ```ts
 // vite.config.js
 import preact from '@preact/preset-vite'
-import Unocss from 'unocss/vite'
+import UnoCSS from 'unocss/vite'
 
 export default {
   plugins: [
-    Unocss({
+    UnoCSS({
       /* options */
     }),
     preact(),
@@ -224,17 +224,17 @@ You must add the plugin before `@sveltejs/vite-plugin-svelte`.
 
 To support `class:foo` and `class:foo={bar}` add the plugin and configure `extractorSvelte` on `extractors` option.
 
-You can use simple rules with `class:`, for example `class:bg-red-500={foo}` or using `shorcuts` to include multiples rules, see `src/App.svelte` on linked example project below.
+You can use simple rules with `class:`, for example `class:bg-red-500={foo}` or using `shortcuts` to include multiples rules, see `src/App.svelte` on linked example project below.
 
 ```ts
 // vite.config.js
 import { svelte } from '@sveltejs/vite-plugin-svelte'
-import Unocss from 'unocss/vite'
+import UnoCSS from 'unocss/vite'
 import { extractorSvelte } from '@unocss/core'
 
 export default {
   plugins: [
-    Unocss({
+    UnoCSS({
       extractors: [extractorSvelte],
       /* more options */
     }),
@@ -249,27 +249,60 @@ You have a `Vite + Svelte` example project on [examples/vite-svelte](https://git
 
 To support `class:foo` and `class:foo={bar}` add the plugin and configure `extractorSvelte` on `extractors` option.
 
-You can use simple rules with `class:`, for example `class:bg-red-500={foo}` or using `shorcuts` to include multiples rules, see `src/routes/__layout.svelte` on linked example project below.
+You can use simple rules with `class:`, for example `class:bg-red-500={foo}` or using `shortcuts` to include multiples rules, see `src/routes/+layout.svelte` on linked example project below.
 
 ```ts
 // vite.config.js
 import { sveltekit } from '@sveltejs/kit/vite'
-import UnoCss from 'unocss/vite'
+import UnoCSS from 'unocss/vite'
 import { extractorSvelte } from '@unocss/core'
 
 /** @type {import('vite').UserConfig} */
 const config = {
   plugins: [
-    sveltekit(),
-    UnoCss({
+    UnoCSS({
       extractors: [extractorSvelte],
       /* more options */
     }),
+    sveltekit(),
   ],
 }
 ```
 
 You have a `SvelteKit` example project on [examples/sveltekit](https://github.com/unocss/unocss/tree/main/examples/sveltekit) directory.
+
+### Svelte/SvelteKit Scoped Mode
+
+Adding `mode: 'svelte-scoped'` to your UnoCSS config options will place styles right inside of each component's style block instead of in a global `uno.css` file. Due to automatic class name compilation, classes that depend on attributes in parent components (like `dir="rtl"` or `.dark`) will just work. Also, you can pass class to children components as long as you pass them using a prop named `class`, e.g. `class="text-lg bg-red-100"`. 
+
+Support for `class:foo` and `class:foo={bar}` is already included. There is no need to add the `extractorSvelte` when using `svelte-scoped` mode.
+
+Because there is no `import 'uno.css'` in your root `+layout.svelte` preflights and safelist classes have no where to be placed. Add the `uno:preflights` or `uno:safelist` attributes to the style block of any component where you want to place them. To use both globally, add the following to your root `+layout.svelte`: 
+
+```html
+<style uno:preflights uno:safelist global></style>
+```
+
+Alternatively, if you only want them to apply to a specific component just add them to that component's `style` tag and don't add the `global` attribute.
+
+```ts
+// vite.config.js
+import { sveltekit } from '@sveltejs/kit/vite'
+import UnoCSS from 'unocss/vite'
+
+/** @type {import('vite').UserConfig} */
+const config = {
+  plugins: [
+    UnoCSS({
+      mode: 'svelte-scoped',
+      /* options */
+    }),
+    sveltekit(),
+  ],
+}
+```
+
+There is a `SvelteKit scoped` example project in the [examples/sveltekit-scoped](https://github.com/unocss/unocss/tree/main/examples/sveltekit-scoped#readme) directory with more detailed explanation of how this mode works.
 
 ### Web Components
 
@@ -279,11 +312,11 @@ Don't forget to remove the import for `uno.css` since the `shadow-dom` mode will
 
 ```ts
 // vite.config.js
-import Unocss from 'unocss/vite'
+import UnoCSS from 'unocss/vite'
 
 export default {
   plugins: [
-    Unocss({
+    UnoCSS({
       mode: 'shadow-dom',
       /* more options */
     }),
@@ -330,11 +363,11 @@ The plugin uses `nth-of-type` to avoid collisions with multiple parts in the sam
 
 ```ts
 // vite.config.js
-import Unocss from 'unocss/vite'
+import UnoCSS from 'unocss/vite'
 
 export default {
   plugins: [
-    Unocss({
+    UnoCSS({
       mode: 'shadow-dom',
       shortcuts: [
         { 'cool-blue': 'bg-blue-500 text-white' },
@@ -380,12 +413,12 @@ template.innerHTML = `
 ```ts
 // vite.config.js
 import solidPlugin from 'vite-plugin-solid'
-import Unocss from 'unocss/vite'
+import UnoCSS from 'unocss/vite'
 
 export default {
   plugins: [
     solidPlugin(),
-    Unocss({
+    UnoCSS({
       /* options */
     }),
   ],
@@ -402,12 +435,12 @@ You need to add the `vite-plugin-elm` plugin before UnoCSS's plugin.
 // vite.config.js
 import { defineConfig } from 'vite'
 import elmPlugin from 'vite-plugin-elm'
-import Unocss from 'unocss/vite'
+import UnoCSS from 'unocss/vite'
 
 export default defineConfig({
   plugins: [
     elmPlugin(),
-    Unocss({
+    UnoCSS({
       /* options */
     }),
   ],
